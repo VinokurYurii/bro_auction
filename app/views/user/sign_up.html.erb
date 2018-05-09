@@ -1,0 +1,17 @@
+<h2>sign up <%= @method %></h2>
+<% if @method == 'POST' %>
+  <h1><%= @data %></h1>
+<% end %>
+<div class="row">
+  <div class="col-md-4">
+    <button class="olololol">AAA</button>
+  </div>
+  <div class="col-md-4 olololol">
+    <form action="sign-up" method="post">
+      <input id="name" name="user[name]">
+      <button type="submit" class="btn btn-success">Submit</button>
+      <%= submit_tag 'Show number!', class: "btn btn-block btn-default" %>
+    </form>
+  </div>
+  <div class="col-md-4"></div>
+</div>
