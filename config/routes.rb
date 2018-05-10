@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
-  devise_for :users
+  # devise_for :users
+  devise_for :users, controllers: { sessions: 'users/sessions' }
   match 'login', to: 'user#login', via: [:get, :post], as: 'login'
   match 'sign-in', to: 'user#sign_in', via: [:get, :post], as: 'sign-in'
   match 'sign-up', to: 'user#sign_up', via: [:get, :post], as: 'sign-up'

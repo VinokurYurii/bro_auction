@@ -1,16 +1,16 @@
-<h2>sign up <%= @method %></h2>
-<% if @method == 'POST' %>
-  <h1><%= @data %></h1>
-<% end %>
 <div class="row">
   <div class="col-md-4">
-    <button class="olololol">AAA</button>
   </div>
-  <div class="col-md-4 olololol">
+  <div class="col-md-4">
     <form action="sign-up" method="post">
-      <input id="name" name="user[name]">
-      <button type="submit" class="btn btn-success">Submit</button>
-      <%= submit_tag 'Show number!', class: "btn btn-block btn-default" %>
+      <h3>Sign up</h3>
+      <input id="first-name" type="text" class="form-control" name="user[first_name]" placeholder="First name *">
+      <input id="last-name" type="text" class="form-control" name="user[last_name]" placeholder="Last name *">
+      <input id="email" type="email" class="form-control" name="user[email]" placeholder="Email *">
+      <input id="phone" type="text" class="form-control" name="user[phone]" placeholder="Phone *">
+      <input id="birth-day" type="date" class="form-control" name="user[birth_day]">
+      <input id="password" type="password" class="form-control" name="user[password]" placeholder="Password *">
+      <button type="submit"class="btn btn-success">Submit</button>
     </form>
   </div>
   <div class="col-md-4"></div>
