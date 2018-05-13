@@ -1,0 +1,29 @@
+                  Prefix Verb     URI Pattern                            Controller#Action
+        new_user_session GET      /users/sign_in(.:format)               devise_token_auth/sessions#new
+            user_session POST     /users/sign_in(.:format)               devise_token_auth/sessions#create
+    destroy_user_session DELETE   /users/sign_out(.:format)              devise_token_auth/sessions#destroy
+       new_user_password GET      /users/password/new(.:format)          devise_token_auth/passwords#new
+      edit_user_password GET      /users/password/edit(.:format)         devise_token_auth/passwords#edit
+           user_password PATCH    /users/password(.:format)              devise_token_auth/passwords#update
+                         PUT      /users/password(.:format)              devise_token_auth/passwords#update
+                         POST     /users/password(.:format)              devise_token_auth/passwords#create
+cancel_user_registration GET      /users/cancel(.:format)                devise_token_auth/registrations#cancel
+   new_user_registration GET      /users/sign_up(.:format)               devise_token_auth/registrations#new
+  edit_user_registration GET      /users/edit(.:format)                  devise_token_auth/registrations#edit
+       user_registration PATCH    /users(.:format)                       devise_token_auth/registrations#update
+                         PUT      /users(.:format)                       devise_token_auth/registrations#update
+                         DELETE   /users(.:format)                       devise_token_auth/registrations#destroy
+                         POST     /users(.:format)                       devise_token_auth/registrations#create
+   new_user_confirmation GET      /users/confirmation/new(.:format)      devise_token_auth/confirmations#new
+       user_confirmation GET      /users/confirmation(.:format)          devise_token_auth/confirmations#show
+                         POST     /users/confirmation(.:format)          devise_token_auth/confirmations#create
+    users_validate_token GET      /users/validate_token(.:format)        devise_token_auth/token_validations#validate_token
+           users_failure GET      /users/failure(.:format)               devise_token_auth/omniauth_callbacks#omniauth_failure
+                         GET      /users/:provider/callback(.:format)    devise_token_auth/omniauth_callbacks#omniauth_success
+                         GET|POST /omniauth/:provider/callback(.:format) devise_token_auth/omniauth_callbacks#redirect_callbacks
+        omniauth_failure GET|POST /omniauth/failure(.:format)            devise_token_auth/omniauth_callbacks#omniauth_failure
+                         GET      /users/:provider(.:format)             redirect(301)
+                   login GET|POST /login(.:format)                       user#login
+                 sign_in GET|POST /sign-in(.:format)                     user#sign_in
+                 sign_up GET|POST /sign-up(.:format)                     user#sign_up
+                    home GET      /                                      application#index

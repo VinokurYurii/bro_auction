@@ -22,7 +22,7 @@ default: &default
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   adapter: postgresql
   encoding: unicode
-  database: bro_auction
+#  database: bro_auction
   username: bro_auction
   password: 5298r1
 

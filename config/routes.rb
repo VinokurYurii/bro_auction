@@ -1,9 +1,9 @@
 Rails.application.routes.draw do
-  # devise_for :users
-  devise_for :users, controllers: { sessions: 'users/sessions' }
-  match 'login', to: 'user#login', via: [:get, :post], as: 'login'
-  match 'sign-in', to: 'user#sign_in', via: [:get, :post], as: 'sign-in'
-  match 'sign-up', to: 'user#sign_up', via: [:get, :post], as: 'sign-up'
+
+  mount_devise_token_auth_for 'User', at: 'users'
+  as :user do
+    # Define routes for User within this block.
+  end
   get '/', to: 'application#index', as: 'home'
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 end
