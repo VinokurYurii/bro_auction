@@ -36,8 +36,16 @@ RSpec.describe "Registration", type: :request do
       subject
       confirmation_email = Devise.mailer.deliveries.last
       expect(data[:email]).to eq confirmation_email.to[0]
-      expect(confirmation_email.body.to_s).to eq "<p>Mail for confirmation registration for #{data[:email]}!</p>\n\n<!--<p> </p>-->\n\n<!--<p></p>-->\n"
-      # expect(confirmation_email.body.to_s).to have_content 'John says Hi!'
+      expect(confirmation_email.body.to_s).to match /Mail for confirmation registration for #{data[:email]}!/
+    end
+
+
+    it "email confirmation link" do
+      subject
+      confirmation_email = Devise.mailer.deliveries.last
+      /href="(?<confirmation_link>.+)"/ =~ confirmation_email.body.to_s
+      get confirmation_link
+      expect(response.status).to eq 302
     end
   end
 end

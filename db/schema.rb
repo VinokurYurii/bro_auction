@@ -10,10 +10,24 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180513121839) do
+ActiveRecord::Schema.define(version: 20180517215701) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "lots", force: :cascade do |t|
+    t.string "title", null: false
+    t.string "image"
+    t.text "description"
+    t.string "status", default: "pending", null: false
+    t.decimal "current_price", precision: 2, scale: 2, null: false
+    t.decimal "estimated_price", precision: 2, scale: 2, null: false
+    t.datetime "lot_start_time"
+    t.datetime "lot_end_time"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_lots_on_created_at"
+  end
 
   create_table "users", force: :cascade do |t|
     t.string "phone", null: false

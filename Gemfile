@@ -6,8 +6,6 @@ git_source(:github) do |repo_name|
 end
 gem 'omniauth'
 gem 'devise_token_auth'
-gem 'jquery-rails'
-gem 'bootstrap', '~> 4.1.1'
 gem 'devise'
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '~> 5.1.6'
@@ -37,6 +35,7 @@ gem 'jbuilder', '~> 2.5'
 # gem 'capistrano-rails', group: :development
 
 group :development, :test do
+  gem 'dotenv-rails', '>=2.4.0'
   gem 'factory_bot_rails'
   gem 'faker', :git => 'https://github.com/stympy/faker.git', :branch => 'master'
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
