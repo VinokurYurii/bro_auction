@@ -1,0 +1,12 @@
+FactoryBot.define do
+  factory :user do
+    first_name {Faker::Name.first_name}
+    last_name  {Faker::Name.last_name}
+    sequence(:email) {|n| n.to_s + Faker::Internet.free_email }
+    password  "password"
+    password_confirmation "password"
+    phone  {Faker::PhoneNumber.cell_phone}
+    birth_day {DateTime.now - rand(21..55).years}
+    confirmed_at { DateTime.current }
+  end
+end

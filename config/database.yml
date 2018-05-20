@@ -22,13 +22,13 @@ default: &default
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   adapter: postgresql
   encoding: unicode
-  database: bro_auction
-  username: bro_auction
-  password: 5298r1
+#  database: bro_auction
+  username: <%= ENV['DB_USERNAME'] %>
+  password: <%= ENV['DB_PASS'] %>
 
 development:
   <<: *default
-  database: bro_auction_development
+  database: <%= ENV['DB_NAME'] %>_development
 
   # The specified database role being used to connect to postgres.
   # To create additional roles in postgres see `$ createuser --help`.
@@ -62,7 +62,7 @@ development:
 # Do not set this db to the same as development or production.
 test:
   <<: *default
-  database: bro_auction_test
+  database: <%= ENV['DB_NAME'] %>_test
 
 # As with config/secrets.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is
@@ -85,6 +85,6 @@ test:
 #
 production:
   <<: *default
-  database: bro_auction_production
-  username: bro_auction
+  database: <%= ENV['DB_NAME'] %>_production
+  username: <%= ENV['DB_USERNAME'] %>
   password: <%= ENV['BRO_AUCTION_DATABASE_PASSWORD'] %>
