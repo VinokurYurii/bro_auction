@@ -19,7 +19,7 @@ ActiveRecord::Schema.define(version: 20180517215701) do
     t.string "title", null: false
     t.string "image"
     t.text "description"
-    t.string "status", default: "pending", null: false
+    t.integer "status", null: false
     t.decimal "current_price", precision: 2, scale: 2, null: false
     t.decimal "estimated_price", precision: 2, scale: 2, null: false
     t.datetime "lot_start_time"

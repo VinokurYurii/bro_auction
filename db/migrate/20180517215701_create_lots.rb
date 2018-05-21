@@ -4,7 +4,7 @@ class CreateLots < ActiveRecord::Migration[5.1]
       t.string :title, :null => false
       t.string :image
       t.text :description
-      t.string :status, :default => :pending, :null => false
+      t.integer :status, :default => :pending, :null => false
       t.decimal :current_price, :scale => 2, :precision => 2, :null => false
       t.decimal :estimated_price, :scale => 2, :precision => 2, :null => false
 
