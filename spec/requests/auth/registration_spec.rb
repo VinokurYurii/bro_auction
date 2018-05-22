@@ -1,4 +1,5 @@
 require "rails_helper"
+# frozen_string_literal: true
 
 RSpec.describe "Registration", type: :request do
   describe "POST create" do
@@ -25,11 +26,11 @@ RSpec.describe "Registration", type: :request do
     it "creates new user" do
       expect {
         subject
-      }.to change{User.count}.from(0).to(1)
+      }.to change { User.count }.from(0).to(1)
     end
 
     it "sends a confirmation email" do
-      expect { subject }.to change( Devise.mailer.deliveries, :count ).by(1)
+      expect { subject }.to change(Devise.mailer.deliveries, :count).by(1)
     end
 
     it "send a email confirmation with custom text" do
