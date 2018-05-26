@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class User < ApplicationRecord
   # Include default devise modules.
   devise :database_authenticatable, :registerable,
@@ -6,7 +8,7 @@ class User < ApplicationRecord
   include DeviseTokenAuth::Concerns::User
 
   validates :email, :first_name, :last_name, :birth_day, :phone, presence: true
-  validates :email, :phone, :uniqueness => { :case_sensitive => false }
+  validates :email, :phone, uniqueness: { case_sensitive: false }
   validate :age_must_be_greater_then_21
   def age_must_be_greater_then_21
     if (DateTime.now - 21.years) < birth_day

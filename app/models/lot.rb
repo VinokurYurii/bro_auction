@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 class Lot < ApplicationRecord
   enum status: [ :pending, :in_progress, :closed ]
 
   validates :title, :status, :current_price, :estimated_price, :created_at, presence: true
-  validates :estimated_price, :current_price, numericality: { :greater_than_or_equal_to => 0 }
+  validates :estimated_price, :current_price, numericality: { greater_than_or_equal_to: 0 }
   validate :start_time_less_then_end_time, :created_at_less_then_start_time
 
   def start_time_less_then_end_time
