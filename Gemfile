@@ -6,6 +6,7 @@ git_source(:github) do |repo_name|
   repo_name = "#{repo_name}/#{repo_name}" unless repo_name.include?("/")
   "https://github.com/#{repo_name}.git"
 end
+gem "active_model_serializers", "~> 0.10"
 gem "rubocop-rails"
 gem "omniauth"
 gem "devise_token_auth"
