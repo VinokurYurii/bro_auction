@@ -12,6 +12,5 @@ require "database_cleaner"
 DatabaseCleaner.strategy = :truncation
 DatabaseCleaner.clean
 
-User.delete_all
-
 FactoryBot.create_list :user, 10
+FactoryBot.create_list :lot, 10
