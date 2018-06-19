@@ -41,6 +41,8 @@ gem "factory_bot_rails"
 # gem 'capistrano-rails', group: :development
 
 group :development, :test do
+  gem "simplecov", require: false
+  gem "annotate"
   gem "dotenv-rails", ">=2.4.0"
   gem "faker", git: "https://github.com/stympy/faker.git", branch: "master"
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
