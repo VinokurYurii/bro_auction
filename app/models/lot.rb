@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
 class Lot < ApplicationRecord
-  enum status: [ :pending, :in_progress, :closed ]
+  belongs_to :user
+  has_many :bids, dependent: :nullify
+
+  enum status: [:pending, :in_progress, :closed]
 
   validates :title, :status, :current_price, :estimated_price, :created_at, presence: true
   validates :estimated_price, :current_price, numericality: { greater_than_or_equal_to: 0 }

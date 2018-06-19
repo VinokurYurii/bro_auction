@@ -10,23 +10,45 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180517215701) do
+ActiveRecord::Schema.define(version: 20180619081112) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "bids", force: :cascade do |t|
+    t.float "proposed_price", null: false
+    t.integer "user_id", null: false
+    t.integer "lot_id", null: false
+    t.datetime "created_at"
+    t.index ["lot_id"], name: "index_bids_on_lot_id"
+    t.index ["user_id", "lot_id"], name: "index_bids_on_user_id_and_lot_id"
+    t.index ["user_id"], name: "index_bids_on_user_id"
+  end
 
   create_table "lots", force: :cascade do |t|
     t.string "title", null: false
     t.string "image"
     t.text "description"
-    t.integer "status", null: false
-    t.decimal "current_price", precision: 2, scale: 2, null: false
+    t.integer "status", default: 0, null: false
+    t.decimal "start_price", precision: 2, scale: 2, null: false
     t.decimal "estimated_price", precision: 2, scale: 2, null: false
     t.datetime "lot_start_time"
     t.datetime "lot_end_time"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["created_at"], name: "index_lots_on_created_at"
+  end
+
+  create_table "orders", force: :cascade do |t|
+    t.string "arrival_location"
+    t.integer "arrival_type", null: false
+    t.integer "status", default: 0, null: false
+    t.integer "bid_id", null: false
+    t.integer "lot_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["bid_id"], name: "index_orders_on_bid_id"
+    t.index ["lot_id"], name: "index_orders_on_lot_id"
   end
 
   create_table "users", force: :cascade do |t|

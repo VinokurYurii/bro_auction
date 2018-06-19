@@ -7,5 +7,11 @@
 #   Character.create(name: 'Luke', movie: movies.first)
 
 require "factory_bot"
+require "database_cleaner"
+
+DatabaseCleaner.strategy = :truncation
+DatabaseCleaner.clean
+
+User.delete_all
 
 FactoryBot.create_list :user, 10
