@@ -8,6 +8,4 @@
 
 require "factory_bot"
 
-10.times do
-  FactoryBot.create :user
-end
+FactoryBot.create_list :user, 10
