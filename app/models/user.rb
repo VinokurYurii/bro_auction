@@ -7,6 +7,9 @@ class User < ApplicationRecord
           :confirmable, :omniauthable
   include DeviseTokenAuth::Concerns::User
 
+  has_many :lots, dependent: :nullify
+  has_many :bids, dependent: :nullify
+
   validates :email, :first_name, :last_name, :birth_day, :phone, presence: true
   validates :email, :phone, uniqueness: { case_sensitive: false }
   validate :age_must_be_greater_then_21
