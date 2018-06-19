@@ -25,9 +25,20 @@ RSpec.describe "Login", type: :request do
       end
     end
 
+    context "when user was logout successful" do
+      before(:each) do
+        @logged_user_headers = create(:user).create_new_auth_token
+      end
+
+      it "response should be success" do
+        delete "/users/sign_out", headers: @logged_user_headers
+        expect(response).to be_success
+      end
+    end
+
     context "when user try login with wrong parameters" do
       it "response should be 401 status with wrong password" do
-        post "/users/sign_in", params: { email: data[:email], password: "ppassword" }
+        post "/users/sign_in", params: { email: data[:email], password: "wrong_password" }
         expect(response.status).to eq 401
       end
 

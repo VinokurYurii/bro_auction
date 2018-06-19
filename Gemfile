@@ -6,6 +6,12 @@ git_source(:github) do |repo_name|
   repo_name = "#{repo_name}/#{repo_name}" unless repo_name.include?("/")
   "https://github.com/#{repo_name}.git"
 end
+gem "sidekiq"
+gem "sidekiq-cron", "~> 0.6.3"
+gem "rufus-scheduler", "~> 3.4.0"
+gem "pundit"
+gem "database_cleaner"
+gem "kaminari"
 gem "active_model_serializers", "~> 0.10"
 gem "rubocop-rails"
 gem "omniauth"
@@ -40,6 +46,8 @@ gem "factory_bot_rails"
 # gem 'capistrano-rails', group: :development
 
 group :development, :test do
+  gem "simplecov", require: false
+  gem "annotate"
   gem "dotenv-rails", ">=2.4.0"
   gem "faker", git: "https://github.com/stympy/faker.git", branch: "master"
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
