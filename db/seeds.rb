@@ -13,4 +13,4 @@ DatabaseCleaner.strategy = :truncation
 DatabaseCleaner.clean
 
 FactoryBot.create_list :user, 10
-FactoryBot.create_list :lot, 10
+User.all.each { |user| FactoryBot.create :lot, user: user }

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # == Schema Information
 #
 # Table name: lots
@@ -25,16 +26,15 @@
 FactoryBot.define do
   time = DateTime.now
   factory :lot do
-    title {Faker::GameOfThrones.city}
+    title { Faker::GameOfThrones.city }
     image nil
-    description {Faker::GameOfThrones.quote}
-    start_price {rand(1000..9999).to_f}
-    estimated_price {rand(100000..100000).to_f}
+    description { Faker::GameOfThrones.quote }
+    start_price { rand(1000..9999).to_f }
+    estimated_price { rand(100000..100000).to_f }
     lot_start_time time + 1.hour
     lot_end_time time + 1.month
     created_at time
     updated_at time
-    status 1
-    user User.find(1)
+    status :in_progress
   end
 end

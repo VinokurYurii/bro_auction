@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # == Schema Information
 #
 # Table name: lots
@@ -25,5 +26,29 @@
 require "rails_helper"
 
 RSpec.describe Lot, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+
+  before(:each) do
+    @user = create(:user)
+    @time = DateTime.now
+  end
+
+  it "is lot valid with start_date greater or equal to current time" do
+    lot = create(:lot, user_id: @user.id)
+    expect(lot).to be_valid
+  end
+  it "is lot valid with stop_date greater than start_date" do
+    lot = create(:lot, user_id: @user.id)
+    expect(lot).to be_valid
+  end
+  it "is lot not valid with start_date greater then stop_date" do
+    lot = Lot.new(attributes_for(:lot,
+                                 user_id: @user.id,
+                                 lot_start_time: DateTime.now - 1.hour,
+                                 lot_end_time: DateTime.now - 3.month))
+    expect(lot).to_not be_valid
+  end
+  it "is lot not valid with start_date less then current time" do
+    lot = Lot.new(attributes_for(:lot, lot_start_time: DateTime.now - 1.hour, user_id: @user.id))
+    expect(lot).to_not be_valid
+  end
 end

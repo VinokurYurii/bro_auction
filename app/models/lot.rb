@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # == Schema Information
 #
 # Table name: lots
@@ -25,18 +26,27 @@
 class Lot < ApplicationRecord
   belongs_to :user
   has_many :bids, dependent: :nullify
+  attr_reader :current_price
+  after_initialize :set_current_price
 
   enum status: [:pending, :in_progress, :closed]
 
-  validates :title, :status, :start_price, :estimated_price, :created_at, presence: true
+  validates :title, :status, :start_price, :estimated_price, presence: true
   validates :estimated_price, :start_price, numericality: { greater_than_or_equal_to: 0 }
   validate :start_time_less_then_end_time, :created_at_less_then_start_time
 
-  def findUserLots(user_id = nil)
-    if (user_id)
-      return Lot.where(:user_id, user_id)
+  def self.find_user_lots(user_id, current_user_id)
+    if user_id == current_user_id
+      return self.where(user_id: user_id, status: [:pending, :in_progress])
     end
-    Lot.find_all
+    self.where(user_id: user_id, status: :in_progress)
+  end
+
+  def set_current_price
+    if max_bid = Bid.where(lot_id: id).order(proposed_price: :desc).first
+      @current_price = max_bid.proposed_price
+    end
+    @current_price = start_price
   end
 
   def start_time_less_then_end_time
@@ -47,7 +57,7 @@ class Lot < ApplicationRecord
 
   def created_at_less_then_start_time
     if lot_start_time <= (created_at ? created_at : DateTime.now)
-      errors.add(:lot_start_time, "Start time must be greeter or equal than current time or created at time " + lot_start_time.to_s + " l2: " +  created_at.to_s)
+      errors.add(:lot_start_time, "Start time must be greeter or equal than current time or created at time " + lot_start_time.to_s + " l2: " + created_at.to_s)
     end
   end
 end
