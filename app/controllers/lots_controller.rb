@@ -1,24 +1,41 @@
 # frozen_string_literal: true
 
 class LotsController < ApiController
-  include DeviseTokenAuth::Concerns::SetUserByToken
-  include Pundit
-  include RenderMethods
   before_action :authenticate_user!
   # protect_from_forgery with: :null_session
 
   def index
+    skip_authorization
     if user_id = params[:user_id]
-      return render json: Lot.find_user_lots(user_id.to_i, current_user.id)
+      return render json: Lot.find_user_lots(user_id.to_i, current_user.id).order(id: :desc).page(params[:page])
     end
-    render json: Lot.where(status: :in_progress)
+    render json: Lot.where(status: :in_progress).order(id: :desc).page(params[:page])
   end
 
   def create
+    skip_authorization
     render_resource_or_errors(Lot.create(create_params.merge(user_id: current_user.id)))
   end
 
   def show
+    @lot = Lot.find(params[:id])
+    authorize @lot
+    render_resource_or_errors(@lot)
+  end
+
+  def destroy
+    @lot = Lot.find(params[:id])
+    if authorize @lot
+      render_resource_or_errors @lot.destroy
+    end
+  end
+
+  def update
+    @lot = Lot.find(params[:id])
+    if authorize @lot
+      @lot.update create_params
+      render_resource_or_errors @lot
+    end
   end
 
   def create_params

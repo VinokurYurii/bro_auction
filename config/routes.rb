@@ -6,6 +6,5 @@ Rails.application.routes.draw do
   as :user do
     # Define routes for User within this block.
   end
-  get "/", to: "application#index", as: "home"
   resources :lots, except: [:new, :edit]
 end

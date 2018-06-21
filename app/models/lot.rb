@@ -29,9 +29,12 @@ class Lot < ApplicationRecord
   attr_reader :current_price
   after_initialize :set_current_price
 
+  include Kaminari
+  paginates_per 10
+
   enum status: [:pending, :in_progress, :closed]
 
-  validates :title, :status, :start_price, :estimated_price, presence: true
+  validates :title, :status, :start_price, :estimated_price, :lot_start_time, :lot_end_time, presence: true
   validates :estimated_price, :start_price, numericality: { greater_than_or_equal_to: 0 }
   validate :start_time_less_then_end_time, :created_at_less_then_start_time
 

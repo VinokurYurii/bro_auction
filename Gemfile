@@ -8,6 +8,7 @@ git_source(:github) do |repo_name|
 end
 gem "pundit"
 gem "database_cleaner"
+gem "kaminari"
 gem "active_model_serializers", "~> 0.10"
 gem "rubocop-rails"
 gem "omniauth"
