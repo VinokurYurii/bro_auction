@@ -20,6 +20,7 @@
 
 FactoryBot.define do
   factory :bid do
-    proposed_price 1.5
+    proposed_price { rand(1000..9999).to_f }
+    created_at { DateTime.now + rand(1..25).days }
   end
 end

@@ -22,6 +22,6 @@ class Bid < ApplicationRecord
   belongs_to :user
   belongs_to :lot
 
-  enum status: [:pending, :sent, :delivered ]
-  enum arrival_type: [:pickup, :royal_mail, :united_states_postal_service, :dhl_express]
+  validates :proposed_price, numericality: { greater_than_or_equal_to: 0 }
+  validates :created_at, :proposed_price, presence: true
 end

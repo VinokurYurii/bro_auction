@@ -26,8 +26,6 @@
 class Lot < ApplicationRecord
   belongs_to :user
   has_many :bids, dependent: :nullify
-  attr_reader :current_price
-  after_initialize :set_current_price
 
   include Kaminari
   paginates_per 10
@@ -45,11 +43,12 @@ class Lot < ApplicationRecord
     self.where(user_id: user_id, status: :in_progress)
   end
 
-  def set_current_price
+  def current_price
     if max_bid = Bid.where(lot_id: id).order(proposed_price: :desc).first
       @current_price = max_bid.proposed_price
+    else
+      @current_price = start_price
     end
-    @current_price = start_price
   end
 
   def start_time_less_then_end_time
