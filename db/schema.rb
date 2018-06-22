@@ -28,15 +28,17 @@ ActiveRecord::Schema.define(version: 20180619081112) do
   create_table "lots", force: :cascade do |t|
     t.string "title", null: false
     t.string "image"
+    t.integer "user_id", null: false
     t.text "description"
     t.integer "status", default: 0, null: false
-    t.decimal "start_price", precision: 2, scale: 2, null: false
-    t.decimal "estimated_price", precision: 2, scale: 2, null: false
+    t.decimal "start_price", precision: 12, scale: 2, null: false
+    t.decimal "estimated_price", precision: 12, scale: 2, null: false
     t.datetime "lot_start_time"
     t.datetime "lot_end_time"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["created_at"], name: "index_lots_on_created_at"
+    t.index ["user_id"], name: "index_lots_on_user_id"
   end
 
   create_table "orders", force: :cascade do |t|

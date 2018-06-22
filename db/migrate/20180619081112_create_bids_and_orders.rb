@@ -1,7 +1,7 @@
 class CreateBidsAndOrders < ActiveRecord::Migration[5.1]
   def change
     create_table :bids do |t|
-      t.float :proposed_price, scale: 2, precision: 2, null: false
+      t.float :proposed_price, scale: 2, precision: 12, null: false
       t.integer :user_id, null: false, references: [:user, :id], index: true
       t.integer :lot_id, null: false, references: [:lot, :id], index: true
 
