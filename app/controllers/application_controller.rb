@@ -3,6 +3,7 @@
 class ApplicationController < ActionController::Base
   include DeviseTokenAuth::Concerns::SetUserByToken
   include Pundit
+  include Kaminari
   protect_from_forgery with: :exception
   before_action :configure_sign_up_params, if: :devise_controller?
   def index

@@ -22,6 +22,25 @@ class Bid < ApplicationRecord
   belongs_to :user
   belongs_to :lot
 
-  validates :proposed_price, numericality: { greater_than_or_equal_to: 0 }
-  validates :created_at, :proposed_price, presence: true
+  validates :proposed_price, numericality: { greater_than_or_equal_to: 0 }, presence: true
+  validate :is_proposed_price_greater_than_current, :is_user_different_from_creator
+
+  scope :lot_bids, -> (lot_id) { where(lot_id: lot_id).order(proposed_price: :desc) }
+
+  enum status: [:pending, :sent, :delivered ]
+  enum arrival_type: [:pickup, :royal_mail, :united_states_postal_service, :dhl_express]
+
+  private
+
+    def is_proposed_price_greater_than_current
+      if proposed_price < self.lot.current_price
+        errors.add(:proposed_price, "proposed_price must be greater that lot.current_price")
+      end
+    end
+
+    def is_user_different_from_creator
+      if user == lot.user
+        errors.add(:user, "lot creator couldn't create bid for his lot(ss)")
+      end
+    end
 end
