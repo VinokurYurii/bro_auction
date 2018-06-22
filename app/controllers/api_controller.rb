@@ -8,6 +8,6 @@ class ApiController < ActionController::API
   after_action :verify_authorized, unless: :devise_controller?
 
   rescue_from Pundit::NotAuthorizedError do
-    render json: { error: "You are not authorized for this action" }
+    render json: { error: "You are not authorized for this action" }, status: :unprocessable_entity
   end
 end

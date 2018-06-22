@@ -26,10 +26,7 @@
 class Lot < ApplicationRecord
   belongs_to :user
   has_many :bids, dependent: :nullify
-  attr_reader :current_price
-  after_initialize :set_current_price
 
-  include Kaminari
   paginates_per 10
 
   enum status: [:pending, :in_progress, :closed]
@@ -45,8 +42,8 @@ class Lot < ApplicationRecord
     self.where(user_id: user_id, status: :in_progress)
   end
 
-  def set_current_price
-    if max_bid = Bid.where(lot_id: id).order(proposed_price: :desc).first
+  def current_price
+    if max_bid = Bid.max_lot_bid(id)
       @current_price = max_bid.proposed_price
     end
     @current_price = start_price

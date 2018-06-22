@@ -22,6 +22,8 @@ class Bid < ApplicationRecord
   belongs_to :user
   belongs_to :lot
 
+  scope :max_lot_bid, -> (lot_id) { where(lot_id: lot_id).order(proposed_price: :desc).first }
+
   enum status: [:pending, :sent, :delivered ]
   enum arrival_type: [:pickup, :royal_mail, :united_states_postal_service, :dhl_express]
 end

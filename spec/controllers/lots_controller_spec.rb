@@ -22,27 +22,27 @@ RSpec.describe LotsController, type: :controller do
 
       it "should return 10 lots without params" do
         get :index
-        expect(parse_json_string(response.body).count).to eq(10)
+        expect(parse_json_string(response.body)[:resources].count).to eq(10)
       end
 
       it "should return 8 lots with page 2" do
         get :index, params: { page: 2 }
-        expect(parse_json_string(response.body).count).to eq(8)
+        expect(parse_json_string(response.body)[:resources].count).to eq(8)
       end
 
       it "should return 10 lots by user for lot owner" do
         get :index, params: { user_id: @user.id }
-        expect(parse_json_string(response.body).count).to eq(10)
+        expect(parse_json_string(response.body)[:resources].count).to eq(10)
       end
 
       it "should return 8 lots by user, but not for lot owner" do
         get :index, params: { user_id: @user2.id }
-        expect(parse_json_string(response.body).count).to eq(8)
+        expect(parse_json_string(response.body)[:resources].count).to eq(8)
       end
 
       it "should use serializer" do
         get :index,  params: { user_id: @user.id }
-        expect(parse_json_string(response.body)[0])
+        expect(parse_json_string(response.body)[:resources][0])
             .to eq(get_serialize_object(Lot.where(user_id: @user.id).order(id: :desc).first, LotSerializer))
       end
     end
@@ -138,7 +138,8 @@ RSpec.describe LotsController, type: :controller do
           @lot = create :lot, user: @user, status: :in_progress
         end
         it "delete with creator user and :in_progress status" do
-          expect { subject } .to_not change { @lot.reload }
+          subject
+          expect(Lot.where(id: @lot.id).present?).to be
         end
       end
 
@@ -147,7 +148,8 @@ RSpec.describe LotsController, type: :controller do
           @lot = create :lot, user: @user, status: :closed
         end
         it "delete with creator user" do
-          expect { subject } .to_not change { @lot.reload }
+          subject
+          expect(Lot.where(id: @lot.id).present?).to be
         end
       end
     end
@@ -159,11 +161,8 @@ RSpec.describe LotsController, type: :controller do
       end
 
       it "delete with not creator user reject" do
-        expect { subject } .to_not change { @lot.reload }
-      end
-
-      it "delete with not creator user reject message" do
         subject
+        expect(Lot.where(id: @lot.id).present?).to be
         expect(parse_json_string(response.body)[:error]).to eq("You are not authorized for this action")
       end
     end
@@ -178,7 +177,9 @@ RSpec.describe LotsController, type: :controller do
         end
         it "should show lot with :pending status" do
           subject
-          expect(parse_json_string(response.body)[:id]).to eq @lot.id
+          expect(parse_json_string(response.body)[:resource][:id]).to eq @lot.id
+          expect(parse_json_string(response.body)[:resource])
+              .to eq(get_serialize_object(Lot.find(@lot.id), LotSerializer))
         end
       end
 
@@ -188,7 +189,7 @@ RSpec.describe LotsController, type: :controller do
         end
         it "should show lot with :in_progress status" do
           subject
-          expect(parse_json_string(response.body)[:id]).to eq @lot.id
+          expect(parse_json_string(response.body)[:resource][:id]).to eq @lot.id
         end
       end
 
@@ -198,7 +199,7 @@ RSpec.describe LotsController, type: :controller do
         end
         it "should show lot with :closed status" do
           subject
-          expect(parse_json_string(response.body)[:id]).to eq @lot.id
+          expect(parse_json_string(response.body)[:resource][:id]).to eq @lot.id
         end
       end
     end
@@ -225,7 +226,7 @@ RSpec.describe LotsController, type: :controller do
         end
         it "should show lot with :in_progress status" do
           subject
-          expect(parse_json_string(response.body)[:id]).to eq @lot.id
+          expect(parse_json_string(response.body)[:resource][:id]).to eq @lot.id
         end
       end
 

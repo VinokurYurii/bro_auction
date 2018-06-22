@@ -7,9 +7,11 @@ class LotsController < ApiController
   def index
     skip_authorization
     if user_id = params[:user_id]
-      return render json: Lot.find_user_lots(user_id.to_i, current_user.id).order(id: :desc).page(params[:page])
+      return render_resources Lot.find_user_lots(user_id.to_i, current_user.id).order(id: :desc)
     end
-    render json: Lot.where(status: :in_progress).order(id: :desc).page(params[:page])
+    render_resources Lot.where(status: :in_progress).order(id: :desc)
+
+    # render json: Lot.where(status: :in_progress).order(id: :desc).page(params[:page])
   end
 
   def create
