@@ -20,15 +20,16 @@ module RenderMethods
     def render_resources(resources, options = {})
       page = params[:page] || 1
       per_page = params[:per_page]
-      # options.merge({ root: :resources })
       res_count = resources.count
-      resources = resources.page(page).per(per_page) unless options[:pagination]
-      # returned_hash = { resources: resources }
+      proc_resources = resources.page(page).per(per_page) unless options[:pagination]
+      if options[:post_process]
+        proc_resources = self.send options[:post_process_function], proc_resources, **options[:post_process_data]
+      end
       meta = {
           all: res_count,
           limit: per_page.to_i,
           offset: per_page.to_i * page.to_i
       }
-      render json: resources, root: :resources
+      render json: proc_resources, root: :resources
     end
 end

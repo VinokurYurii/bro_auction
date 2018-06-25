@@ -26,6 +26,7 @@
 class Lot < ApplicationRecord
   belongs_to :user
   has_many :bids, dependent: :nullify
+  attr_accessor :is_my
 
   paginates_per 10
 
@@ -37,7 +38,7 @@ class Lot < ApplicationRecord
 
   def self.find_user_lots(user_id, current_user_id)
     if user_id == current_user_id
-      return Lot.joins(:bids).where("lots.user_id = :user_id OR bids.user_id = :user_id", user_id: user_id)
+      return Lot.left_joins(:bids).where("lots.user_id = :user_id OR bids.user_id = :user_id", user_id: user_id)
     end
     where(user_id: user_id, status: :in_progress)
   end

@@ -7,5 +7,5 @@ Rails.application.routes.draw do
     # Define routes for User within this block.
   end
   resources :lots, except: [:new, :edit]
-  resources :bids, except: [:new, :edit]
+  resources :bids, only: [:create, :index]
 end

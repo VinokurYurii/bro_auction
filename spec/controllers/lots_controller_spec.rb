@@ -30,20 +30,40 @@ RSpec.describe LotsController, type: :controller do
         expect(parse_json_string(response.body)[:resources].count).to eq(8)
       end
 
-      it "should return 10 lots by user for lot owner" do
+      it "check :is_my lot property: should return 8 false and 10 true :is_my" do
+        get :index, params: { per_page: 20 }
+        expect(parse_json_string(response.body)[:resources].pluck(:is_my)).to eq(
+          [false, false, false, false, false, false, false, false,
+           true, true, true, true, true, true, true, true, true, true])
+      end
+
+      it "should return 10 lots by user for lot owner without bids" do
         get :index, params: { user_id: @user.id }
         expect(parse_json_string(response.body)[:resources].count).to eq(10)
       end
 
-      it "should return 8 lots by user, but not for lot owner" do
+      it "should return 8 lots by user, but not for lot owner without bids" do
         get :index, params: { user_id: @user2.id }
         expect(parse_json_string(response.body)[:resources].count).to eq(8)
       end
 
+      context "finding lots with lot where user take part as customer" do
+        before :each do
+          @bid = create :bid, lot: @lot = Lot.where(user: @user2).first, user: @user, proposed_price: @lot.current_price + 10.00
+        end
+
+        it "should return 6 lots with page 2" do
+          get :index, params: { user_id: @user.id, page: 2 }
+          expect(parse_json_string(response.body)[:resources].count).to eq(6)
+        end
+      end
+
       it "should use serializer" do
         get :index,  params: { user_id: @user.id }
+        serialized_lot = get_serialize_object(Lot.find_user_lots(@user.id, @user.id).order(id: :desc).first, LotSerializer)
+        serialized_lot[:is_my] = true
         expect(parse_json_string(response.body)[:resources][0])
-            .to eq(get_serialize_object(Lot.where(user_id: @user.id).order(id: :desc).first, LotSerializer))
+            .to eq(serialized_lot)
       end
     end
   end
