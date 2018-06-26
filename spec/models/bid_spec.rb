@@ -21,5 +21,51 @@
 require "rails_helper"
 
 RSpec.describe Bid, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+  before(:each) do
+    @user  = create(:user)
+    @user2 = create(:user)
+    @lot   = create(:lot, user_id: @user.id, start_price: 10.00)
+  end
+  it "should be valid if proposed price greater than lot current price and user != lot creator" do
+    bid = create(:bid, user_id: @user2.id, lot: @lot, proposed_price: 20.00)
+    expect(bid).to be_valid
+  end
+  it "should be not valid if proposed price less than lot current price" do
+    bid = Bid.new(attributes_for(:bid,
+                                 proposed_price: 9.99,
+                                 user: @user2,
+                                 lot: @lot))
+    expect(bid).to_not be_valid
+    expect(bid.errors.messages).to eq proposed_price: ["Proposed_price must be greater that lot.current_price"]
+  end
+  it "should be not valid if creator try create bid for his lot" do
+    bid = Bid.new(attributes_for(:bid,
+                                 proposed_price: 20.00,
+                                 user: @user,
+                                 lot: @lot))
+    expect(bid).to_not be_valid
+    expect(bid.errors.messages).to eq user: ["Lot creator couldn't create bid for his lot(s)"]
+  end
+  context "check lot status" do
+    before :each do
+      @lot2 = create(:lot, user_id: @user.id, start_price: 10.00, status: :pending)
+      @lot3 = create(:lot, user_id: @user.id, start_price: 10.00, status: :closed)
+    end
+    it "should be not valid if lot status :pending" do
+      bid = Bid.new(attributes_for(:bid,
+                                   proposed_price: 20.00,
+                                   user: @user2,
+                                   lot: @lot2))
+      expect(bid).to_not be_valid
+      expect(bid.errors.messages).to eq lot: ["Lot status must be 'in_progress'"]
+    end
+    it "should be not valid if lot status :closed" do
+      bid = Bid.new(attributes_for(:bid,
+                                   proposed_price: 20.00,
+                                   user: @user2,
+                                   lot: @lot3))
+      expect(bid).to_not be_valid
+      expect(bid.errors.messages).to eq lot: ["Lot status must be 'in_progress'"]
+    end
+  end
 end

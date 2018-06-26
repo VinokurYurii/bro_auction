@@ -1,15 +1,22 @@
 # frozen_string_literal: true
 
 class LotsController < ApiController
-  before_action :authenticate_user!
-  # protect_from_forgery with: :null_session
-
   def index
     skip_authorization
     if user_id = params[:user_id]
-      return render json: Lot.find_user_lots(user_id.to_i, current_user.id).order(id: :desc).page(params[:page])
+      return render_resources Lot.find_user_lots(user_id.to_i, current_user.id).order(id: :desc),
+                              post_process: true,
+                              post_process_function: :check_lots_for_is_my,
+                              post_process_data: {
+                                current_user_id: current_user.id
+                              }
     end
-    render json: Lot.where(status: :in_progress).order(id: :desc).page(params[:page])
+    render_resources Lot.where(status: :in_progress).order(id: :desc),
+                     post_process: true,
+                     post_process_function: :check_lots_for_is_my,
+                     post_process_data: {
+                         current_user_id: current_user.id
+                     }
   end
 
   def create
@@ -18,9 +25,14 @@ class LotsController < ApiController
   end
 
   def show
-    @lot = Lot.find(params[:id])
+    begin
+      @lot = Lot.find(params[:id])
+    rescue ActiveRecord::RecordNotFound
+      skip_authorization
+      return render json: { error: "RecordNotFound" }, status: :not_found
+    end
     authorize @lot
-    render_resource_or_errors(@lot)
+    render_resource @lot
   end
 
   def destroy

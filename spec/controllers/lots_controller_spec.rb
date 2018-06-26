@@ -22,28 +22,48 @@ RSpec.describe LotsController, type: :controller do
 
       it "should return 10 lots without params" do
         get :index
-        expect(parse_json_string(response.body).count).to eq(10)
+        expect(parse_json_string(response.body)[:resources].count).to eq(10)
       end
 
       it "should return 8 lots with page 2" do
         get :index, params: { page: 2 }
-        expect(parse_json_string(response.body).count).to eq(8)
+        expect(parse_json_string(response.body)[:resources].count).to eq(8)
       end
 
-      it "should return 10 lots by user for lot owner" do
+      it "check :is_my lot property: should return 8 false and 10 true :is_my" do
+        get :index, params: { per_page: 20 }
+        is_my_array = parse_json_string(response.body)[:resources].pluck(:is_my)
+        expect(is_my_array.select { |is_my| !is_my } .count).to eq 8
+        expect(is_my_array.select { |is_my| is_my } .count).to eq 10
+      end
+
+      it "should return 10 lots by user for lot owner without bids" do
         get :index, params: { user_id: @user.id }
-        expect(parse_json_string(response.body).count).to eq(10)
+        expect(parse_json_string(response.body)[:resources].count).to eq(10)
       end
 
-      it "should return 8 lots by user, but not for lot owner" do
+      it "should return 8 lots by user, but not for lot owner without bids" do
         get :index, params: { user_id: @user2.id }
-        expect(parse_json_string(response.body).count).to eq(8)
+        expect(parse_json_string(response.body)[:resources].count).to eq(8)
+      end
+
+      context "finding lots with lot where user take part as customer" do
+        before :each do
+          @bid = create :bid, lot: @lot = @user2.lots.first, user: @user, proposed_price: @lot.current_price + 10.00
+        end
+
+        it "should return 6 lots with page 2" do
+          get :index, params: { user_id: @user.id, page: 2 }
+          expect(parse_json_string(response.body)[:resources].count).to eq(6)
+        end
       end
 
       it "should use serializer" do
         get :index,  params: { user_id: @user.id }
-        expect(parse_json_string(response.body)[0])
-            .to eq(get_serialize_object(Lot.where(user_id: @user.id).order(id: :desc).first, LotSerializer))
+        serialized_lot = get_serialize_object(Lot.find_user_lots(@user.id, @user.id).order(id: :desc).first, LotSerializer)
+        serialized_lot[:is_my] = true
+        expect(parse_json_string(response.body)[:resources][0])
+            .to eq(serialized_lot)
       end
     end
   end
@@ -138,7 +158,8 @@ RSpec.describe LotsController, type: :controller do
           @lot = create :lot, user: @user, status: :in_progress
         end
         it "delete with creator user and :in_progress status" do
-          expect { subject } .to_not change { @lot.reload }
+          subject
+          expect(Lot.where(id: @lot.id).present?).to be
         end
       end
 
@@ -147,7 +168,9 @@ RSpec.describe LotsController, type: :controller do
           @lot = create :lot, user: @user, status: :closed
         end
         it "delete with creator user" do
-          expect { subject } .to_not change { @lot.reload }
+          subject
+          expect(@lot.reload.present?).to be
+          expect(response.status).to eq 422
         end
       end
     end
@@ -159,11 +182,8 @@ RSpec.describe LotsController, type: :controller do
       end
 
       it "delete with not creator user reject" do
-        expect { subject } .to_not change { @lot.reload }
-      end
-
-      it "delete with not creator user reject message" do
         subject
+        expect(Lot.where(id: @lot.id).present?).to be
         expect(parse_json_string(response.body)[:error]).to eq("You are not authorized for this action")
       end
     end
@@ -178,7 +198,14 @@ RSpec.describe LotsController, type: :controller do
         end
         it "should show lot with :pending status" do
           subject
-          expect(parse_json_string(response.body)[:id]).to eq @lot.id
+          expect(parse_json_string(response.body)[:resource][:id]).to eq @lot.id
+          expect(parse_json_string(response.body)[:resource])
+              .to eq(get_serialize_object(Lot.find(@lot.id), LotSerializer))
+        end
+        it "should return 404 for not existed lot" do
+          get :show, params: { id: 10000 }
+          expect(response.status).to eq 404
+          expect(parse_json_string(response.body)).to eq error: "RecordNotFound"
         end
       end
 
@@ -188,7 +215,7 @@ RSpec.describe LotsController, type: :controller do
         end
         it "should show lot with :in_progress status" do
           subject
-          expect(parse_json_string(response.body)[:id]).to eq @lot.id
+          expect(parse_json_string(response.body)[:resource][:id]).to eq @lot.id
         end
       end
 
@@ -198,7 +225,7 @@ RSpec.describe LotsController, type: :controller do
         end
         it "should show lot with :closed status" do
           subject
-          expect(parse_json_string(response.body)[:id]).to eq @lot.id
+          expect(parse_json_string(response.body)[:resource][:id]).to eq @lot.id
         end
       end
     end
@@ -225,7 +252,7 @@ RSpec.describe LotsController, type: :controller do
         end
         it "should show lot with :in_progress status" do
           subject
-          expect(parse_json_string(response.body)[:id]).to eq @lot.id
+          expect(parse_json_string(response.body)[:resource][:id]).to eq @lot.id
         end
       end
 

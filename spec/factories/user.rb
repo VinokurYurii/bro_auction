@@ -10,5 +10,11 @@ FactoryBot.define do
     phone  { Faker::PhoneNumber.cell_phone }
     birth_day { DateTime.now - rand(21..55).years }
     confirmed_at { DateTime.current }
+
+    trait :with_lots do
+      after(:create) do |user|
+        create_list :lot, 2, user: user
+      end
+    end
   end
 end

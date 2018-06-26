@@ -23,4 +23,7 @@
 class Order < ApplicationRecord
   belongs_to :bid
   belongs_to :lot
+
+  enum status: [:pending, :sent, :delivered ]
+  enum arrival_type: [:pickup, :royal_mail, :united_states_postal_service, :dhl_express]
 end

@@ -12,5 +12,10 @@ require "database_cleaner"
 DatabaseCleaner.strategy = :truncation
 DatabaseCleaner.clean
 
-FactoryBot.create_list :user, 10
-User.all.each { |user| FactoryBot.create :lot, user: user }
+FactoryBot.create_list :user, 10, :with_lots
+
+Lot.all.each do |lot|
+  User.where.not(id: lot.user_id).sample(5).each do |user|
+    FactoryBot.create :bid, user: user, lot: lot, proposed_price: lot.current_price + 100
+  end
+end
