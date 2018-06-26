@@ -26,7 +26,9 @@
 class Lot < ApplicationRecord
   belongs_to :user
   has_many :bids, dependent: :nullify
+  attr_reader :current_price
   attr_accessor :is_my
+  after_initialize :set_current_price
 
   paginates_per 10
 
