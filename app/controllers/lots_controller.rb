@@ -32,7 +32,12 @@ class LotsController < ApiController
       return render json: { error: "RecordNotFound" }, status: :not_found
     end
     authorize @lot
-    render_resource @lot
+    render_resource @lot,
+                    post_process: true,
+                    post_process_function: :is_lot_winner,
+                    post_process_data: {
+                        current_user_id: current_user.id
+                    }
   end
 
   def destroy

@@ -27,4 +27,11 @@ module ChangeProperty
       end
       lots
     end
+
+    def is_lot_winner(lot, options = {})
+      if lot.status == "closed" && lot.bids.count > 0
+        lot.is_winner = lot.bids.order(proposed_price: :desc).first.user_id == options[:current_user_id]
+      end
+      lot
+    end
 end
