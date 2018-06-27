@@ -28,6 +28,8 @@ class Bid < ApplicationRecord
 
   scope :lot_bids, -> (lot_id) { where(lot_id: lot_id).order(proposed_price: :desc) }
 
+  scope :max_lot_bid, -> (lot_id) { where(lot_id: lot_id).order(proposed_price: :desc).first }
+
   enum status: [:pending, :sent, :delivered ]
   enum arrival_type: [:pickup, :royal_mail, :united_states_postal_service, :dhl_express]
 
