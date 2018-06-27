@@ -30,20 +30,40 @@ RSpec.describe LotsController, type: :controller do
         expect(parse_json_string(response.body)[:resources].count).to eq(8)
       end
 
-      it "should return 10 lots by user for lot owner" do
+      it "check :is_my lot property: should return 8 false and 10 true :is_my" do
+        get :index, params: { per_page: 20 }
+        is_my_array = parse_json_string(response.body)[:resources].pluck(:is_my)
+        expect(is_my_array.select { |is_my| !is_my } .count).to eq 8
+        expect(is_my_array.select { |is_my| is_my } .count).to eq 10
+      end
+
+      it "should return 10 lots by user for lot owner without bids" do
         get :index, params: { user_id: @user.id }
         expect(parse_json_string(response.body)[:resources].count).to eq(10)
       end
 
-      it "should return 8 lots by user, but not for lot owner" do
+      it "should return 8 lots by user, but not for lot owner without bids" do
         get :index, params: { user_id: @user2.id }
         expect(parse_json_string(response.body)[:resources].count).to eq(8)
       end
 
+      context "finding lots with lot where user take part as customer" do
+        before :each do
+          @bid = create :bid, lot: @lot = @user2.lots.first, user: @user, proposed_price: @lot.current_price + 10.00
+        end
+
+        it "should return 6 lots with page 2" do
+          get :index, params: { user_id: @user.id, page: 2 }
+          expect(parse_json_string(response.body)[:resources].count).to eq(6)
+        end
+      end
+
       it "should use serializer" do
         get :index,  params: { user_id: @user.id }
+        serialized_lot = get_serialize_object(Lot.find_user_lots(@user.id, @user.id).order(id: :desc).first, LotSerializer)
+        serialized_lot[:is_my] = true
         expect(parse_json_string(response.body)[:resources][0])
-            .to eq(get_serialize_object(Lot.where(user_id: @user.id).order(id: :desc).first, LotSerializer))
+            .to eq(serialized_lot)
       end
     end
   end
@@ -149,7 +169,8 @@ RSpec.describe LotsController, type: :controller do
         end
         it "delete with creator user" do
           subject
-          expect(Lot.where(id: @lot.id).present?).to be
+          expect(@lot.reload.present?).to be
+          expect(response.status).to eq 422
         end
       end
     end
@@ -180,6 +201,11 @@ RSpec.describe LotsController, type: :controller do
           expect(parse_json_string(response.body)[:resource][:id]).to eq @lot.id
           expect(parse_json_string(response.body)[:resource])
               .to eq(get_serialize_object(Lot.find(@lot.id), LotSerializer))
+        end
+        it "should return 404 for not existed lot" do
+          get :show, params: { id: 10000 }
+          expect(response.status).to eq 404
+          expect(parse_json_string(response.body)).to eq error: "RecordNotFound"
         end
       end
 
