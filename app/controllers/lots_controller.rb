@@ -1,22 +1,18 @@
 # frozen_string_literal: true
 
 class LotsController < ApiController
+  include LotHelper
+
   def index
     skip_authorization
     if user_id = params[:user_id]
       return render_resources Lot.find_user_lots(user_id.to_i, current_user.id).order(id: :desc),
                               post_process: true,
-                              post_process_function: :check_lots_for_is_my,
-                              post_process_data: {
-                                current_user_id: current_user.id
-                              }
+                              post_process_function: :check_lots_for_is_my
     end
     render_resources Lot.where(status: :in_progress).order(id: :desc),
                      post_process: true,
-                     post_process_function: :check_lots_for_is_my,
-                     post_process_data: {
-                         current_user_id: current_user.id
-                     }
+                     post_process_function: :check_lots_for_is_my
   end
 
   def create
@@ -29,15 +25,13 @@ class LotsController < ApiController
       @lot = Lot.find(params[:id])
     rescue ActiveRecord::RecordNotFound
       skip_authorization
-      return render json: { error: "RecordNotFound" }, status: :not_found
+      return render json: { error: "Post not fount" }, status: :not_found
     end
     authorize @lot
+    @lot.user_identifier = ApplicationRecord.generate_hash [@lot.id, current_user.id]
     render_resource @lot,
                     post_process: true,
-                    post_process_function: :is_lot_winner,
-                    post_process_data: {
-                        current_user_id: current_user.id
-                    }
+                    post_process_function: :mark_lot_winner
   end
 
   def destroy

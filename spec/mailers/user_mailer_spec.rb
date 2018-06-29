@@ -17,7 +17,7 @@ RSpec.describe UserMailer, type: :mailer do
     end
 
     it "renders lot without winner mail body" do
-      expect(mail.body.encoded).to match("Your lot are closed by system<br>No one made bets")
+      expect(mail.body.encoded).to match(/Your lot are closed by system<\/br>[\w\W]*No one made bets/)
       expect(mail.body.encoded).to match("<a href='" + lots_url + "/" + @lot.id.to_s + "'>Your closed lot</a>")
     end
   end
@@ -53,7 +53,7 @@ RSpec.describe UserMailer, type: :mailer do
 
       it "renders lot with winner mail body" do
         expect(mail.body.encoded).to match("You are the lot #{ @lot.title } winner")
-        expect(mail.body.encoded).to match("<a href='" + lots_url + "/" + @lot.id.to_s + "'>Your wonned lot</a>")
+        expect(mail.body.encoded).to match("<a href='" + lots_url + "/" + @lot.id.to_s + "'>Your won lot</a>")
       end
     end
   end

@@ -1,14 +1,18 @@
 # frozen_string_literal: true
 
 class BidsController < ApiController
+  include BidHelper
+
   def index
     skip_authorization
-    render_resource_or_errors add_bids_participants_aliases Bid.lot_bids(params[:lot_id])
+    render_resources Bid.lot_bids(params[:lot_id]),
+                     post_process: true,
+                     post_process_function: :add_bids_participants_aliases
   end
 
   def create
     skip_authorization
-    render_resource_or_errors(Bid.create(create_params.merge(user_id: current_user.id)))
+    render_resource_or_errors Bid.create(create_params.merge(user_id: current_user.id))
   end
 
   def create_params
