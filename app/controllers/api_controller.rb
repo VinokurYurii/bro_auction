@@ -4,7 +4,6 @@ class ApiController < ActionController::API
   include DeviseTokenAuth::Concerns::SetUserByToken
   include Pundit
   include RenderMethods
-  include ChangeProperty
 
   after_action :verify_authorized, unless: :devise_controller?
 

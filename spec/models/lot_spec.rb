@@ -63,4 +63,22 @@ RSpec.describe Lot, type: :model do
     @lot.check_time_and_status
     expect(@lot.reload.status).to eq "closed"
   end
+
+  context "check current price changes" do
+    before(:each) do
+      @user = create :user
+      @user2 = create :user
+      @user3 = create :user
+      @lot = create :lot, user: @user, start_price: 10.00, estimated_price: 100.00
+      @bid1 = create :bid, user: @user2, lot: @lot, proposed_price: 20.00
+      @bid2 = create :bid, user: @user3, lot: @lot, proposed_price: 30.00
+      @bid3 = create :bid, user: @user2, lot: @lot, proposed_price: 40.00
+    end
+    it "lot current_price must should change after deleting max bid" do
+      expect { @bid3.destroy! }.to change { @lot.reload.current_price }.from(40.00).to(30.00)
+    end
+    it "lot current_price must shouldn't change after deleting not max bid" do
+      expect { @bid2.destroy! }.to_not change { @lot.reload.current_price }
+    end
+  end
 end

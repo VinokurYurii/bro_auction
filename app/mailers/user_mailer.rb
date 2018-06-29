@@ -4,24 +4,41 @@ class UserMailer < ApplicationMailer
   def email_for_winner(lot)
     lot_winner = lot.max_bids.first.user
     @lot = lot
-    @mail_text = "Congratulations!<br>
-You are the lot #{ @lot.title } winner<br>
-Now you can create order<br>"
-    @mail_text += make_lot_link "Your wonned lot"
+    @lot_link = make_lot_link "Your won lot"
     mail(to: lot_winner.email, subject: "You are won the #{ @lot.title } lot")
   end
 
   def closing_email_for_lot_owner(lot)
     @lot = lot
-    @mail_text = "Your lot are closed by system<br>"
-    if lot.bids.empty?
-      @mail_text += "No one made bets"
-    else
-      @mail_text += "Winner price of your lot is #{@lot.current_price}"
-    end
-    @mail_text += "<br>"
-    @mail_text += make_lot_link "Your closed lot"
+    @lot_link = make_lot_link "Your closed lot"
     mail(to: @lot.user.email, subject: "You lot #{ @lot.title } become closed")
+  end
+
+  def email_about_create_order(order)
+    @order = order
+    @lot = @order.lot
+    @lot_link = make_lot_link "Your lot"
+    mail(to: @lot.user.email, subject: "Auction winner was create order for your #{ @lot.title } lot")
+  end
+
+  def email_about_change_arrival_params(order)
+    @order = order
+    @lot = @order.lot
+    @lot_link = make_lot_link "Your lot"
+    mail(to: @lot.user.email, subject: "Your lot winner has change arrival data for your #{ @lot.title } lot")
+  end
+
+  def email_about_sending_good(order)
+    @order = order
+    @lot = @order.lot
+    @lot_link = make_lot_link "Your won lot"
+    mail(to: @order.bid.user.email, subject: "Your won #{ @lot.title } lot was sent by seller")
+  end
+
+  def email_about_delivering_good(order)
+    @order = order
+    @lot = @order.lot
+    mail(to: @lot.user.email, subject: "Your lot #{ @lot.title } was successfully delivered")
   end
 
   private

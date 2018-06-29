@@ -9,7 +9,6 @@ RSpec.describe "Login", type: :request do
           email: Faker::Internet.free_email,
           password: "password"
       }
-
     end
 
     before(:each) do

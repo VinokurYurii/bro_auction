@@ -18,45 +18,19 @@ RSpec.describe BidsController, type: :controller do
     it "response should be success and get 3 bids" do
       subject
       expect(response).to be_success
-      expect(parse_json_string(response.body)[:resource].count).to eq(3)
+      expect(parse_json_string(response.body)[:resources].count).to eq(3)
     end
     context "check winner logic" do
       before :each do
         login_by_user @user2
       end
       it "should change lot status after creating bid with proposed price equal to estimated price" do
-        post :create, params: { bid: { lot_id: @lot.id, proposed_price: 100.00 } }
-        expect(@lot.reload.status).to eq "closed"
+        expect { post :create, params: { bid: { lot_id: @lot.id, proposed_price: 100.00 } } }
+            .to change { @lot.reload.status } .from("in_progress").to("closed")
       end
       it "should change lot status after creating bid greater than estimated price" do
-        post :create, params: { bid: { lot_id: @lot.id, proposed_price: 110.00 } }
-        expect(@lot.reload.status).to eq "closed"
-      end
-      it "overhead bid should be winner and other was losers" do
-        @bid = Bid.create proposed_price: 110.00, user: @user2, lot: @lot
-        subject
-        bids = parse_json_string(response.body)[:resource]
-        winner = bids.select { |bid| bid[:id] == @bid.id } .first
-        others = bids.select { |bid| bid[:id] != @bid.id }
-        expect(winner[:is_winner]).to eq true
-        expect(others.map { |other| other[:is_winner] } .select { |status| !status } . count)
-            .to eq others.count
-      end
-      it "should be only one winner"
-    end
-    context "bis must hide participants of auction from each other, but mark current user bids" do
-      context "change user for user2" do
-        before :each do
-          login_by_user @user2
-        end
-        it "should add 'Your' for current user alias" do
-          subject
-          expect(parse_json_string(response.body)[:resource].pluck :user_alias).to eq ["Your", "Customer 1", "Your"]
-        end
-      end
-      it "should add 'Customer #' as current users alias" do
-        subject
-        expect(parse_json_string(response.body)[:resource].pluck :user_alias).to eq ["Customer 1", "Customer 2", "Customer 1"]
+        expect { post :create, params: { bid: { lot_id: @lot.id, proposed_price: 110.00 } } }
+            .to change { @lot.reload.status } .from("in_progress").to("closed")
       end
     end
   end
@@ -75,12 +49,46 @@ RSpec.describe BidsController, type: :controller do
         post :create, params: { bid: { lot_id: @lot.id, proposed_price: 20.00 } }
         expect(response).to be_success
       end
+      it "should broadcast bid creation to lot chanel" do
+        expect { post :create, params: { bid: { lot_id: @lot.id, proposed_price: 28.11 } } }
+            .to have_broadcasted_to("bids_for_lot_#{@lot.id}")
+                    .with(a_hash_including(
+                            proposed_price: 28.11,
+                            user_alias: ApplicationRecord.generate_hash([@lot.id, @user2.id])
+                          ))
+      end
       it "shouldn't create bid if proposed price less than current price" do
         post :create, params: { bid: { lot_id: @lot.id, proposed_price: 9.99 } }
         expect(response).to_not be_success
         expect(parse_json_string(response.body)[:errors][:proposed_price])
             .to eq ["Proposed_price must be greater that lot.current_price"]
       end
+    end
+  end
+
+  describe "DELETE /bids/:id" do
+    before(:each) do
+      login_by_user @user2
+      @user3 = create :user
+      @bid1 = create :bid, user: @user2, lot: @lot, proposed_price: 20.00
+      @bid2 = create :bid, user: @user3, lot: @lot, proposed_price: 30.00
+      @bid3 = create :bid, user: @user2, lot: @lot, proposed_price: 40.00
+    end
+    it "should delete bid by bid creator and lot :in_progress status" do
+      delete :destroy, params: { id: @bid3.id }
+      expect(response).to be_success
+      expect(@lot.reload.bids.count).to eq 2
+    end
+    it "shouldn't delete bid by not bid creator" do
+      delete :destroy, params: { id: @bid2.id }
+      expect(response).to_not be_success
+      expect(parse_json_string(response.body)[:error]).to eq("You are not authorized for this action")
+    end
+    it "shouldn't delete bid by bid creator and lot :closed status" do
+      @lot.update! status: :closed
+      delete :destroy, params: { id: @bid3.id }
+      expect(response).to_not be_success
+      expect(parse_json_string(response.body)[:error]).to eq("You are not authorized for this action")
     end
   end
 end

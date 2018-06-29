@@ -22,18 +22,20 @@ class Bid < ApplicationRecord
   belongs_to :lot
   attr_accessor :user_alias
 
-  after_create :check_lot
+  after_create :check_lot, :broadcast_bid
 
   validates :proposed_price, numericality: { greater_than_or_equal_to: 0 }, presence: true
   validate :is_proposed_price_greater_than_current, :is_user_different_from_creator, :lot_status_in_progress
 
   scope :lot_bids, -> (lot_id) { where(lot_id: lot_id).order(proposed_price: :desc) }
 
+  scope :max_lot_bid, -> (lot_id) { where(lot_id: lot_id).order(proposed_price: :desc).first }
+
   enum status: [:pending, :sent, :delivered ]
   enum arrival_type: [:pickup, :royal_mail, :united_states_postal_service, :dhl_express]
 
-  def is_winner
-    @is_winner = lot.status == "closed" && lot.bids.order(proposed_price: :desc).first.id == id
+  def is_winner?
+    lot.status == "closed" && lot.bids.order(proposed_price: :desc).first.id == id
   end
 
   private
@@ -57,5 +59,10 @@ class Bid < ApplicationRecord
       if lot.status != "in_progress"
         errors.add(:lot, "Lot status must be 'in_progress'")
       end
+    end
+
+    def broadcast_bid
+      self.user_alias = ApplicationRecord.generate_hash([lot_id, user_id], 10)
+      ActionCable.server.broadcast "bids_for_lot_#{lot.id}", BidSerializer.new(self)
     end
 end
