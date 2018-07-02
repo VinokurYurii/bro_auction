@@ -281,7 +281,7 @@ RSpec.describe LotsController, type: :controller do
       end
       it "User with closed bid must be winner" do
         subject
-        expect(parse_json_string(response.body)[:resource][:is_winner]).to eq true
+        expect(parse_json_string(response.body)[:resource][:user_won]).to eq true
       end
       context "Other users wouldn't be winner" do
         before :each do
@@ -289,7 +289,7 @@ RSpec.describe LotsController, type: :controller do
         end
         it "User with lower bid wouldn't be winner" do
           subject
-          expect(parse_json_string(response.body)[:resource][:is_winner]).to eq false
+          expect(parse_json_string(response.body)[:resource][:user_won]).to eq false
         end
       end
     end

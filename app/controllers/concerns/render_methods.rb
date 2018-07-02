@@ -15,7 +15,7 @@ module RenderMethods
 
     def render_resource(resource, options = {})
       if options[:post_process]
-        resource = post_process resource, options[:post_process_function], **options[:post_process_data]
+        post_process resource, options[:post_process_function]
       end
       render json: resource, root: :resource, **options
     end
@@ -25,14 +25,14 @@ module RenderMethods
       per_page = params[:per_page]
       resources = options.fetch :pagination, true ? resources.page(page).per(per_page) : resources
       if options[:post_process]
-        resources = post_process resources, options[:post_process_function], **options[:post_process_data]
+        post_process resources, options[:post_process_function]
       end
       render_hash = { json: resources, root: :resources }
       render_hash.merge each_serializer: options[:serializer] if options[:serializer]
       render render_hash
     end
 
-    def post_process(resources, function, options = {})
-      self.send function, resources, **options
+    def post_process(resources, function)
+      self.send function, resources
     end
 end

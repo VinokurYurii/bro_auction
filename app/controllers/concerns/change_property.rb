@@ -18,20 +18,17 @@ module ChangeProperty
           bid.user_alias = user_aliases[bid.user_id]
         end
       end
-      bids
     end
 
-    def check_lots_for_is_my(lots, options = {})
+    def check_lots_for_is_my(lots)
       lots.map do |lot|
-        lot.is_my = (lot.user_id == options[:current_user_id])
+        lot.is_my = (lot.user_id == current_user.id)
       end
-      lots
     end
 
-    def is_lot_winner(lot, options = {})
+    def is_lot_winner(lot)
       if lot.status == "closed" && lot.bids.count > 0
-        lot.is_winner = lot.bids.order(proposed_price: :desc).first.user_id == options[:current_user_id]
+        lot.user_won = lot.bids.order(proposed_price: :desc).first.user_id == current_user.id
       end
-      lot
     end
 end

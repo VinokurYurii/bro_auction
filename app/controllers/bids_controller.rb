@@ -3,7 +3,9 @@
 class BidsController < ApiController
   def index
     skip_authorization
-    render_resource_or_errors add_bids_participants_aliases Bid.lot_bids(params[:lot_id])
+    render_resources Bid.lot_bids(params[:lot_id]),
+                     post_process: true,
+                     post_process_function: :add_bids_participants_aliases
   end
 
   def create

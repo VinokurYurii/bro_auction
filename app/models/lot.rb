@@ -26,7 +26,7 @@
 class Lot < ApplicationRecord
   belongs_to :user
   has_many :bids, dependent: :nullify
-  attr_accessor :is_my, :is_winner
+  attr_accessor :is_my, :is_winner, :user_won
 
   paginates_per 10
 
@@ -35,8 +35,6 @@ class Lot < ApplicationRecord
   validates :title, :status, :start_price, :estimated_price, :lot_start_time, :lot_end_time, presence: true
   validates :estimated_price, :start_price, numericality: { greater_than_or_equal_to: 0 }
   validate :start_time_less_then_end_time, :created_at_less_then_start_time
-
-  # scope :max_bids, -> { bids.order(proposed_price: :desc) }
 
   def max_bids
     bids.order(proposed_price: :desc)
