@@ -18,7 +18,31 @@ RSpec.describe BidsController, type: :controller do
     it "response should be success and get 3 bids" do
       subject
       expect(response).to be_success
-      expect(parse_json_string(response.body)[:resource].count).to eq(3)
+      expect(parse_json_string(response.body)[:resources].count).to eq(3)
+    end
+    context "check winner logic" do
+      before :each do
+        login_by_user @user2
+      end
+      it "should change lot status after creating bid with proposed price equal to estimated price" do
+        expect { post :create, params: { bid: { lot_id: @lot.id, proposed_price: 100.00 } } }
+            .to change { @lot.reload.status } .from("in_progress").to("closed")
+      end
+      it "should change lot status after creating bid greater than estimated price" do
+        expect { post :create, params: { bid: { lot_id: @lot.id, proposed_price: 110.00 } } }
+            .to change { @lot.reload.status } .from("in_progress").to("closed")
+      end
+      it "overhead bid should be winner and other was losers" do
+        @bid = Bid.create proposed_price: 110.00, user: @user2, lot: @lot
+        subject
+        bids = parse_json_string(response.body)[:resources]
+        winner = bids.select { |bid| bid[:id] == @bid.id } .first
+        others = bids.select { |bid| bid[:id] != @bid.id }
+        expect(winner[:is_winner]).to eq true
+        expect(others.map { |other| other[:is_winner] } .select { |status| !status } . count)
+            .to eq others.count
+      end
+      it "should be only one winner"
     end
     context "bis must hide participants of auction from each other, but mark current user bids" do
       context "change user for user2" do
@@ -27,12 +51,12 @@ RSpec.describe BidsController, type: :controller do
         end
         it "should add 'Your' for current user alias" do
           subject
-          expect(parse_json_string(response.body)[:resource].pluck :user_alias).to eq ["Your", "Customer 1", "Your"]
+          expect(parse_json_string(response.body)[:resources].pluck :user_alias).to eq ["Your", "Customer 1", "Your"]
         end
       end
       it "should add 'Customer #' as current users alias" do
         subject
-        expect(parse_json_string(response.body)[:resource].pluck :user_alias).to eq ["Customer 1", "Customer 2", "Customer 1"]
+        expect(parse_json_string(response.body)[:resources].pluck :user_alias).to eq ["Customer 1", "Customer 2", "Customer 1"]
       end
     end
   end
@@ -57,8 +81,6 @@ RSpec.describe BidsController, type: :controller do
         expect(parse_json_string(response.body)[:errors][:proposed_price])
             .to eq ["Proposed_price must be greater that lot.current_price"]
       end
-      it "should change lot status if proposed price equal to estimated price"
-      it "should change lot status if proposed price greater than estimated price"
     end
   end
 end

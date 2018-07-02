@@ -10,7 +10,7 @@ class LotPolicy < ApplicationPolicy
   end
 
   def show?
-    record.user_id == user.id || record.status == "in_progress"
+    record.user_id == user.id || %w[in_progress closed].include?(record.status)
   end
 
   private

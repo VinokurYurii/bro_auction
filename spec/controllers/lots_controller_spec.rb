@@ -260,9 +260,36 @@ RSpec.describe LotsController, type: :controller do
         before(:each) do
           @lot = create :lot, user: @user, status: :closed
         end
-        it "shouldn't show lot with :closed status" do
+        it "should show lot with :closed status" do
           subject
-          expect(parse_json_string(response.body)[:error]).to eq("You are not authorized for this action")
+          expect(parse_json_string(response.body)[:resource][:id]).to eq @lot.id
+        end
+      end
+    end
+
+    context "Check lot winner" do
+      before :each do
+        @lot = create :lot, user: @user, start_price: 10.00, estimated_price: 100.00
+        @user2 = create :user
+        @user3 = create :user
+        create :bid, user: @user3, lot: @lot, proposed_price: 20.00
+        create :bid, user: @user2, lot: @lot, proposed_price: 30.00
+        create :bid, user: @user3, lot: @lot, proposed_price: 40.00
+        create :bid, user: @user2, lot: @lot, proposed_price: 110.00
+
+        login_by_user @user2
+      end
+      it "User with closed bid must be winner" do
+        subject
+        expect(parse_json_string(response.body)[:resource][:user_won]).to eq true
+      end
+      context "Other users wouldn't be winner" do
+        before :each do
+          login_by_user @user3
+        end
+        it "User with lower bid wouldn't be winner" do
+          subject
+          expect(parse_json_string(response.body)[:resource][:user_won]).to eq false
         end
       end
     end
