@@ -6,6 +6,9 @@ git_source(:github) do |repo_name|
   repo_name = "#{repo_name}/#{repo_name}" unless repo_name.include?("/")
   "https://github.com/#{repo_name}.git"
 end
+gem "sidekiq"
+gem "sidekiq-cron", "~> 0.6.3"
+gem "rufus-scheduler", "~> 3.4.0"
 gem "pundit"
 gem "database_cleaner"
 gem "kaminari"
@@ -53,6 +56,7 @@ group :development, :test do
   gem "capybara", "~> 2.13"
   gem "selenium-webdriver"
   gem "rspec-rails", "~> 3.7"
+  gem "action-cable-testing"
 end
 
 group :development do

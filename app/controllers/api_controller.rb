@@ -4,10 +4,7 @@ class ApiController < ActionController::API
   include DeviseTokenAuth::Concerns::SetUserByToken
   include Pundit
   include RenderMethods
-  include ChangeProperty
-  include Kaminari
 
-  before_action :authenticate_user!
   after_action :verify_authorized, unless: :devise_controller?
 
   rescue_from Pundit::NotAuthorizedError do

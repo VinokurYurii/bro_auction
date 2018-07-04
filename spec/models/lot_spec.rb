@@ -51,4 +51,16 @@ RSpec.describe Lot, type: :model do
     lot = Lot.new(attributes_for(:lot, lot_start_time: DateTime.now - 1.hour, user_id: @user.id))
     expect(lot).to_not be_valid
   end
+  it "should set status to :in_progress if lot_start_time less or equal then now and status :pending" do
+    @lot = create :lot, user_id: @user.id, lot_start_time: DateTime.now, status: :pending
+    @lot.check_time_and_status
+    expect(@lot.reload.status).to eq "in_progress"
+  end
+  it "should set status to :closed if lot_end_time less or equal then now and status not :closed" do
+    @lot = create :lot, user_id: @user.id,
+                  lot_start_time: DateTime.now,
+                  lot_end_time: DateTime.now
+    @lot.check_time_and_status
+    expect(@lot.reload.status).to eq "closed"
+  end
 end
