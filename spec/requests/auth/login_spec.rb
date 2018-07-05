@@ -47,4 +47,15 @@ RSpec.describe "Login", type: :request do
       end
     end
   end
+  describe "Without authenticate" do
+    before(:each) do
+      @user = create :user
+    end
+    it "should raise error on authenticate user for not device controller" do
+      get "/lots"
+      expect(response).to_not be_success
+      expect(response.status).to eq 401
+      expect(parse_json_string(response.body)[:errors]).to eq ["You need to sign in or sign up before continuing."]
+    end
+  end
 end

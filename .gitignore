@@ -21,3 +21,4 @@
 .env
 
 coverage
+/public/apidocs/
