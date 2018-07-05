@@ -4,7 +4,6 @@ require "rails_helper"
 RSpec.describe "UserLotIdentifier", type: :request do
   describe "bis must hide participants of auction from each other, but mark current user bids" do
     before(:each) do
-
       @user1 = create :user
       @user2 = create :user
       @user3 = create :user

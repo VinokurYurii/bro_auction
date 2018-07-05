@@ -40,7 +40,6 @@ RSpec.describe "Registration", type: :request do
       expect(confirmation_email.body.to_s).to match /Mail for confirmation registration for #{data[:email]}!/
     end
 
-
     it "email confirmation link" do
       subject
       confirmation_email = Devise.mailer.deliveries.last

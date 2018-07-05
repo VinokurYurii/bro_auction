@@ -32,16 +32,6 @@ RSpec.describe BidsController, type: :controller do
         expect { post :create, params: { bid: { lot_id: @lot.id, proposed_price: 110.00 } } }
             .to change { @lot.reload.status } .from("in_progress").to("closed")
       end
-      it "overhead bid should be winner and other was losers" do
-        @bid = Bid.create proposed_price: 110.00, user: @user2, lot: @lot
-        subject
-        bids = parse_json_string(response.body)[:resources]
-        winner = bids.select { |bid| bid[:id] == @bid.id } .first
-        others = bids.select { |bid| bid[:id] != @bid.id }
-        expect(winner[:is_winner]).to eq true
-        expect(others.map { |other| other[:is_winner] } .select { |status| !status } . count)
-            .to eq others.count
-      end
     end
   end
 
@@ -73,6 +63,32 @@ RSpec.describe BidsController, type: :controller do
         expect(parse_json_string(response.body)[:errors][:proposed_price])
             .to eq ["Proposed_price must be greater that lot.current_price"]
       end
+    end
+  end
+
+  describe "DELETE /bids/:id" do
+    before(:each) do
+      login_by_user @user2
+      @user3 = create :user
+      @bid1 = create :bid, user: @user2, lot: @lot, proposed_price: 20.00
+      @bid2 = create :bid, user: @user3, lot: @lot, proposed_price: 30.00
+      @bid3 = create :bid, user: @user2, lot: @lot, proposed_price: 40.00
+    end
+    it "should delete bid by bid creator and lot :in_progress status" do
+      delete :destroy, params: { id: @bid3.id }
+      expect(response).to be_success
+      expect(@lot.reload.bids.count).to eq 2
+    end
+    it "shouldn't delete bid by not bid creator" do
+      delete :destroy, params: { id: @bid2.id }
+      expect(response).to_not be_success
+      expect(parse_json_string(response.body)[:error]).to eq("You are not authorized for this action")
+    end
+    it "shouldn't delete bid by bid creator and lot :closed status" do
+      @lot.update! status: :closed
+      delete :destroy, params: { id: @bid3.id }
+      expect(response).to_not be_success
+      expect(parse_json_string(response.body)[:error]).to eq("You are not authorized for this action")
     end
   end
 end

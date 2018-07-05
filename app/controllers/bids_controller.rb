@@ -18,4 +18,10 @@ class BidsController < ApiController
   def create_params
     params.require(:bid).permit(:proposed_price, :lot_id)
   end
+
+  def destroy
+    @bid = Bid.find(params[:id])
+    authorize @bid
+    render_resource_or_errors @bid.destroy
+  end
 end

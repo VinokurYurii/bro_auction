@@ -34,8 +34,8 @@ class Bid < ApplicationRecord
   enum status: [:pending, :sent, :delivered ]
   enum arrival_type: [:pickup, :royal_mail, :united_states_postal_service, :dhl_express]
 
-  def is_winner
-    @is_winner = lot.status == "closed" && lot.bids.order(proposed_price: :desc).first.id == id
+  def is_winner?
+    lot.status == "closed" && lot.bids.order(proposed_price: :desc).first.id == id
   end
 
   private

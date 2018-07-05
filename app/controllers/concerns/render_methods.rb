@@ -4,7 +4,6 @@ module RenderMethods
   extend ActiveSupport::Concern
 
   private
-
     def render_resource_or_errors(resource, options = {})
       resource.try(:errors).present? ? render_errors(resource) : render_resource(resource, options)
     end

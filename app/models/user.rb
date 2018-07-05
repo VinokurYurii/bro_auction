@@ -48,6 +48,7 @@ class User < ApplicationRecord
 
   has_many :lots, dependent: :nullify
   has_many :bids, dependent: :nullify
+  attr_accessor :order_role
 
   validates :email, :first_name, :last_name, :birth_day, :phone, presence: true
   validates :email, :phone, uniqueness: { case_sensitive: false }
