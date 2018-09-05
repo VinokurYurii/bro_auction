@@ -1,0 +1,8 @@
+Your lot are closed by system</br>
+<% if @lot.bids.empty? %>
+  No one made bets
+<% else %>
+  Winner price of your lot is <%= @lot.current_price %>
+<% end %>
+</br>
+<%= raw @lot_link %>
